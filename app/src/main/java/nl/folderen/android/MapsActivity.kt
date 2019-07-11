@@ -3,6 +3,9 @@ package nl.folderen.android
 import android.content.DialogInterface
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -19,6 +22,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import java.io.IOException
 import java.util.*
 
 
@@ -32,6 +36,7 @@ class MapsActivity :
 
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var lastLocation: Location
     private lateinit var timer: Timer
     private lateinit var timerTask: TimerTask
 
@@ -66,16 +71,55 @@ class MapsActivity :
 
         map = googleMap
 
-        val place = LatLng(52.0115205, 4.7104633)
-        map.addMarker(MarkerOptions().position(place).title("My place"))
-        // Zoom level 0 corresponds to the fully zoomed-out world view.
-        // Most areas support zoom levels up to 20,
-        // while more remote areas only support zoom levels up to 13.
-        // A zoom level of 14 is a nice in-between value that shows enough detail without getting crazy-close.
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(place, 12.0f))
-
         map.getUiSettings().setZoomControlsEnabled(true)
         map.setOnMarkerClickListener(this)
+
+        setUpMap()
+    }
+
+    private fun setUpMap() {
+
+        if (ActivityCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return
+        }
+
+        // Enable the my-location layer.
+        // It draws a light blue dot on the user’s location.
+        // It also adds a button to the map that, when tapped, centers the map on the user’s location.
+        map.isMyLocationEnabled = true
+
+        // The Android Maps API provides different map types to help you out:
+        // MAP_TYPE_NORMAL, MAP_TYPE_SATELLITE, MAP_TYPE_TERRAIN, MAP_TYPE_HYBRID
+        // MAP_TYPE_TERRAIN displays a more detailed view of the area, showing changes in elevation.
+        map.mapType = GoogleMap.MAP_TYPE_TERRAIN;
+
+        // Get the most recent location currently available.
+        fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+            // Got last known location. In some rare situations this can be null.
+            if (location != null) {
+                lastLocation = location
+                val currentLatLng = LatLng(location.latitude, location.longitude)
+                //placeMarkerOnMap(currentLatLng)
+                /*
+                val place = LatLng(52.0115205, 4.7104633)
+                map.addMarker(MarkerOptions().position(place).title("My place"))
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(place, 12.0f))
+                */
+                // Zoom level 0 corresponds to the fully zoomed-out world view.
+                // Most areas support zoom levels up to 20,
+                // while more remote areas only support zoom levels up to 13.
+                // A zoom level of 14 is a nice in-between value that shows enough detail without getting crazy-close.
+                map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 12f))
+            }
+        }
+    }
+
+    private fun placeMarkerOnMap(location: LatLng) {
+        val markerOptions = MarkerOptions().position(location)
+        val titleStr = getAddress(location)  // add these two lines
+        markerOptions.title(titleStr)
+        map.addMarker(markerOptions)
     }
 
     override fun onMarkerClick(p0: Marker?) = false
@@ -147,7 +191,7 @@ class MapsActivity :
             return true
         }
 
-        val permissionsToCheck = info!!.requestedPermissions
+        val permissionsToCheck = info.requestedPermissions
 
         // Check if the permissions have been granted.
         // Collect the permissions to ask the user to grant.
@@ -186,7 +230,7 @@ class MapsActivity :
             return
         }
 
-        val permissionsToCheck = info!!.requestedPermissions
+        val permissionsToCheck = info.requestedPermissions
 
         // Check if the permissions have been granted.
         var alertUser = false
@@ -201,7 +245,7 @@ class MapsActivity :
             AlertDialog.Builder(this)
                 .setTitle("Permissions needed")
                 .setMessage("Please grant all permissions for the app to work as designed")
-                .setPositiveButton("Ok", DialogInterface.OnClickListener { dialogInterface, i ->
+                .setPositiveButton("Ok", DialogInterface.OnClickListener { _, _ ->
                     val toast = Toast.makeText(
                         applicationContext,
                         "The app is running with reduced functionality",
@@ -214,5 +258,28 @@ class MapsActivity :
         }
     }
 
+    private fun getAddress(latLng: LatLng): String {
+        // Create a Geocoder object to turn a latitude and longitude coordinate into an address and vice versa.
+        val geocoder = Geocoder(this)
+        val addresses: List<Address>?
+        val address: Address?
+        var addressText = ""
+
+        try {
+            // Ask the geocoder to get the address from the location passed to the method.
+            addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
+            // If the response contains any address, then append it to a string and return.
+            if (null != addresses && !addresses.isEmpty()) {
+                address = addresses[0]
+                for (i in 0 until address.maxAddressLineIndex) {
+                    addressText += if (i == 0) address.getAddressLine(i) else "\n" + address.getAddressLine(i)
+                }
+            }
+        } catch (e: IOException) {
+            Log.e("MapsActivity", e.localizedMessage)
+        }
+
+        return addressText
+    }
 }
 
