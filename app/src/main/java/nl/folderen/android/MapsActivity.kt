@@ -1,6 +1,9 @@
 package nl.folderen.android
 
+import android.app.Activity
 import android.content.DialogInterface
+import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.location.Address
@@ -13,8 +16,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -40,6 +43,15 @@ class MapsActivity :
     private lateinit var timer: Timer
     private lateinit var timerTask: TimerTask
 
+    private lateinit var locationCallback: LocationCallback
+    private lateinit var locationRequest: LocationRequest
+    private var locationUpdateState = false
+
+    companion object {
+        private const val LOCATION_PERMISSION_REQUEST_CODE = 1
+        private const val REQUEST_CHECK_SETTINGS = 2
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
@@ -56,6 +68,17 @@ class MapsActivity :
         timer = Timer()
         // timerTask = TimerTask()
         //timer.scheduleAtFixedRate(timerTask, 1000, 1000)
+
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(p0: LocationResult) {
+                super.onLocationResult(p0)
+
+                lastLocation = p0.lastLocation
+                placeMarkerOnMap(LatLng(lastLocation.latitude, lastLocation.longitude))
+            }
+        }
+
+        createLocationRequest()
     }
 
     /**
@@ -209,52 +232,61 @@ class MapsActivity :
 
         // One or more permissions are not yet granted: Request them.
         val permissionsToRequestArray = permissionsToRequest.toArray(arrayOfNulls<String>(permissionsToRequest.size))
-        ActivityCompat.requestPermissions(this, permissionsToRequestArray, 0)
+        ActivityCompat.requestPermissions(this, permissionsToRequestArray, LOCATION_PERMISSION_REQUEST_CODE)
 
         // Indicate to the caller that one or more permissions have not yet been granted.
         return false
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+
         Log.d("onRequestPermissions", requestCode.toString())
 
-        // The permissions to check for whether they have been granted by the user.
-        val context = applicationContext
-        lateinit var info: PackageInfo
-        try {
-            info = packageManager.getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS)
-        } catch (e: Exception) {
-            // There's no package info.
-            // This implies there's no permissions to check for.
-            // So: Done.
-            return
-        }
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
 
-        val permissionsToCheck = info.requestedPermissions
-
-        // Check if the permissions have been granted.
-        var alertUser = false
-        for (permission in permissionsToCheck) {
-            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-                alertUser = true
+            // The permissions to check for whether they have been granted by the user.
+            val context = applicationContext
+            lateinit var info: PackageInfo
+            try {
+                info = packageManager.getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS)
+            } catch (e: Exception) {
+                // There's no package info.
+                // This implies there's no permissions to check for.
+                // So: Done.
+                return
             }
+
+            val permissionsToCheck = info.requestedPermissions
+
+            // Check if the permissions have been granted.
+            var alertUser = false
+            for (permission in permissionsToCheck) {
+                if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                    alertUser = true
+                }
+            }
+
+            // If not all permissions have been granted, alert the user.
+            if (alertUser) {
+                AlertDialog.Builder(this)
+                    .setTitle("Permissions needed")
+                    .setMessage("Please grant all permissions for the app to work as designed")
+                    .setPositiveButton("Ok", DialogInterface.OnClickListener { _, _ ->
+                        val toast = Toast.makeText(
+                            applicationContext,
+                            "The app is running with reduced functionality",
+                            Toast.LENGTH_LONG
+                        )
+                        toast.show()
+                    })
+                    .create()
+                    .show()
+            }
+
         }
 
-        // If not all permissions have been granted, alert the user.
-        if (alertUser) {
-            AlertDialog.Builder(this)
-                .setTitle("Permissions needed")
-                .setMessage("Please grant all permissions for the app to work as designed")
-                .setPositiveButton("Ok", DialogInterface.OnClickListener { _, _ ->
-                    val toast = Toast.makeText(
-                        applicationContext,
-                        "The app is running with reduced functionality",
-                        Toast.LENGTH_LONG
-                    )
-                    toast.show()
-                })
-                .create()
-                .show()
+        if (requestCode == REQUEST_CHECK_SETTINGS) {
+            return;
         }
     }
 
@@ -281,5 +313,88 @@ class MapsActivity :
 
         return addressText
     }
+
+    private fun startLocationUpdates() {
+
+        // Check on permissions for fine location access granted.
+        if (ActivityCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return
+        }
+
+        // Request for location updates.
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null /* Looper */)
+
+    }
+
+    private fun createLocationRequest() {
+        // Create an instance of LocationRequest,
+        // add it to an instance of LocationSettingsRequest.Builder
+        // and retrieve and handle any changes to be made
+        // based on the current state of the user’s location settings.
+        locationRequest = LocationRequest()
+        // Specify the rate at which the app will like to receive updates.
+        locationRequest.interval = 10000
+        // Specify the fastest rate at which the app can handle updates.
+        // Setting the fastestInterval rate places a limit on how fast updates will be sent to the app.
+        locationRequest.fastestInterval = 5000
+
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+
+        val builder = LocationSettingsRequest.Builder()
+            .addLocationRequest(locationRequest)
+
+        // Create a settings client and a task to check location settings.
+        val client = LocationServices.getSettingsClient(this)
+        val task = client.checkLocationSettings(builder.build())
+
+        // A task success means all is well and it can go ahead and initiate a location request.
+        task.addOnSuccessListener {
+            locationUpdateState = true
+            startLocationUpdates()
+        }
+        task.addOnFailureListener { e ->
+            // A task failure means the location settings have some issues which can be fixed.
+            // This could be as a result of the user’s location settings turned off.
+            // You fix this by showing the user a dialog as shown below:
+            if (e is ResolvableApiException) {
+                // Location settings are not satisfied, but this can be fixed
+                // by showing the user a dialog.
+                try {
+                    // Show the dialog by calling startResolutionForResult(),
+                    // and check the result in onActivityResult().
+                    e.startResolutionForResult(this@MapsActivity,
+                        REQUEST_CHECK_SETTINGS)
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    // Ignore the error.
+                }
+            }
+        }
+    }
+
+    // Override AppCompatActivity’s onActivityResult() method
+    // and start the update request if it has a RESULT_OK result for a REQUEST_CHECK_SETTINGS request.
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CHECK_SETTINGS) {
+            if (resultCode == Activity.RESULT_OK) {
+                locationUpdateState = true
+                startLocationUpdates()
+            }
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        fusedLocationClient.removeLocationUpdates(locationCallback)
+    }
+
+    public override fun onResume() {
+        super.onResume()
+        if (!locationUpdateState) {
+            startLocationUpdates()
+        }
+    }
+
 }
 
