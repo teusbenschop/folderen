@@ -203,7 +203,7 @@ class MainActivity() :
         // The Android Maps API provides different map types to help you out:
         // MAP_TYPE_NORMAL, MAP_TYPE_SATELLITE, MAP_TYPE_TERRAIN, MAP_TYPE_HYBRID
         // MAP_TYPE_TERRAIN displays a more detailed view of the area, showing changes in elevation.
-        map.mapType = GoogleMap.MAP_TYPE_TERRAIN
+        map.mapType = GoogleMap.MAP_TYPE_NORMAL
 
         // Get the most recent location currently available.
         fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
