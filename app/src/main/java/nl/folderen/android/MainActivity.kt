@@ -12,9 +12,16 @@ import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import androidx.core.view.GravityCompat
+import androidx.appcompat.app.ActionBarDrawerToggle
+import android.view.MenuItem
+import androidx.drawerlayout.widget.DrawerLayout
+import com.google.android.material.navigation.NavigationView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import android.view.Menu
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.common.api.ResolvableApiException
@@ -28,17 +35,17 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import java.io.IOException
-import java.util.*
 
 
 // The parts related to Google Maps, and to the Fused Location Client were based on this helpful tutorial:
 // https://www.raywenderlich.com/230-introduction-to-google-maps-api-for-android-with-kotlin#toc-anchor-001
 
 
-class MapsActivity :
+class MainActivity() :
     AppCompatActivity(),
     OnMapReadyCallback,
-    GoogleMap.OnMarkerClickListener {
+    GoogleMap.OnMarkerClickListener,
+    NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var map: GoogleMap
 
@@ -53,9 +60,23 @@ class MapsActivity :
         private const val REQUEST_CHECK_SETTINGS = 2
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_maps)
+        setContentView(R.layout.activity_main)
+        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(toolbar)
+
+        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
+        val navView: NavigationView = findViewById(R.id.nav_view)
+        val toggle = ActionBarDrawerToggle(
+            this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
+        )
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+        navView.setNavigationItemSelectedListener(this)
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -75,19 +96,20 @@ class MapsActivity :
         }
 
         createLocationRequest()
+
     }
+
 
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
+     * This is where we can add markers or lines, add listeners or move the camera.
+     * If Google Play services is not installed on the device,
+     * the user will be prompted to install it inside the SupportMapFragment.
+     * This method will only be triggered
+     * once the user has installed Google Play services and returned to the app.
      */
     override fun onMapReady(googleMap: GoogleMap) {
-
         map = googleMap
 
         map.getUiSettings().setZoomControlsEnabled(true)
@@ -95,6 +117,76 @@ class MapsActivity :
 
         setUpMap()
     }
+
+    override fun onBackPressed() {
+        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        return when (item.itemId) {
+            R.id.action_settings -> true
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        // Handle navigation view item clicks here.
+        when (item.itemId) {
+            R.id.nav_home -> {
+                // Handle the camera action
+            }
+            R.id.nav_gallery -> {
+
+            }
+            R.id.nav_slideshow -> {
+
+            }
+            R.id.nav_tools -> {
+
+            }
+            R.id.nav_share -> {
+
+            }
+            R.id.nav_send -> {
+
+            }
+        }
+        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
+        drawerLayout.closeDrawer(GravityCompat.START)
+        return true
+    }
+
+    override fun onMarkerClick(marker: Marker): Boolean {
+        marker.title = "Clicked"
+        return false
+    }
+
+
+    private fun placeMarkerOnMap(location: LatLng) {
+        val markerOptions = MarkerOptions()
+            .position(location)
+            .icon(BitmapDescriptorFactory.fromResource(R.drawable.greendot12))
+            .alpha (0.2f)
+            .anchor(0.5f, 0.5f)
+        val titleStr = getAddress(location)  // add these two lines
+        markerOptions.title(titleStr)
+        map.addMarker(markerOptions)
+    }
+
 
     private fun setUpMap() {
 
@@ -111,7 +203,7 @@ class MapsActivity :
         // The Android Maps API provides different map types to help you out:
         // MAP_TYPE_NORMAL, MAP_TYPE_SATELLITE, MAP_TYPE_TERRAIN, MAP_TYPE_HYBRID
         // MAP_TYPE_TERRAIN displays a more detailed view of the area, showing changes in elevation.
-        map.mapType = GoogleMap.MAP_TYPE_TERRAIN;
+        map.mapType = GoogleMap.MAP_TYPE_TERRAIN
 
         // Get the most recent location currently available.
         fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
@@ -134,21 +226,6 @@ class MapsActivity :
         }
     }
 
-    private fun placeMarkerOnMap(location: LatLng) {
-        val markerOptions = MarkerOptions()
-            .position(location)
-            .icon(BitmapDescriptorFactory.fromResource(R.drawable.greendot12))
-            .alpha (0.2f)
-            .anchor(0.5f, 0.5f)
-        val titleStr = getAddress(location)  // add these two lines
-        markerOptions.title(titleStr)
-        map.addMarker(markerOptions)
-    }
-
-    override fun onMarkerClick(marker: Marker): Boolean {
-        marker.title = "Clicked"
-        return false
-    }
 
     private fun printLocation() {
         Log.d ("folderen", "printLocation")
@@ -184,6 +261,7 @@ class MapsActivity :
         }
         */
     }
+
 
     private fun checkPermissions(): Boolean {
         // https://developer.android.com/training/permissions/requesting
@@ -223,6 +301,7 @@ class MapsActivity :
         // Indicate to the caller that one or more permissions have not yet been granted.
         return false
     }
+
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
 
@@ -276,6 +355,7 @@ class MapsActivity :
         }
     }
 
+
     private fun getAddress(latLng: LatLng): String {
         // Create a Geocoder object to turn a latitude and longitude coordinate into an address and vice versa.
         val geocoder = Geocoder(this)
@@ -300,6 +380,7 @@ class MapsActivity :
         return addressText
     }
 
+
     private fun startLocationUpdates() {
 
         // Check on permissions for fine location access granted.
@@ -312,6 +393,7 @@ class MapsActivity :
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null /* Looper */)
 
     }
+
 
     private fun createLocationRequest() {
         // Create an instance of LocationRequest,
@@ -349,7 +431,7 @@ class MapsActivity :
                 try {
                     // Show the dialog by calling startResolutionForResult(),
                     // and check the result in onActivityResult().
-                    e.startResolutionForResult(this@MapsActivity,
+                    e.startResolutionForResult(this@MainActivity,
                         REQUEST_CHECK_SETTINGS)
                 } catch (sendEx: IntentSender.SendIntentException) {
                     // Ignore the error.
@@ -370,6 +452,7 @@ class MapsActivity :
         }
     }
 
+
     override fun onPause() {
         super.onPause()
         //fusedLocationClient.removeLocationUpdates(locationCallback)
@@ -382,5 +465,6 @@ class MapsActivity :
         }
     }
 
-}
 
+
+}
