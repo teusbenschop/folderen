@@ -1,5 +1,6 @@
 package nl.folderen.android
 
+import android.Manifest
 import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
@@ -22,6 +23,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
@@ -29,8 +31,9 @@ import java.io.IOException
 import java.util.*
 
 
-// Based on this tutorial:
+// The parts related to Google Maps, and to the Fused Location Client were based on this helpful tutorial:
 // https://www.raywenderlich.com/230-introduction-to-google-maps-api-for-android-with-kotlin#toc-anchor-001
+
 
 class MapsActivity :
     AppCompatActivity(),
@@ -38,11 +41,9 @@ class MapsActivity :
     GoogleMap.OnMarkerClickListener {
 
     private lateinit var map: GoogleMap
+
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var lastLocation: Location
-    private lateinit var timer: Timer
-    private lateinit var timerTask: TimerTask
-
     private lateinit var locationCallback: LocationCallback
     private lateinit var locationRequest: LocationRequest
     private var locationUpdateState = false
@@ -56,18 +57,13 @@ class MapsActivity :
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
         // Handle permissions before map is created.
         checkPermissions()
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
-        timer = Timer()
-        // timerTask = TimerTask()
-        //timer.scheduleAtFixedRate(timerTask, 1000, 1000)
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(p0: LocationResult) {
@@ -103,7 +99,7 @@ class MapsActivity :
     private fun setUpMap() {
 
         if (ActivityCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return
         }
 
@@ -139,29 +135,19 @@ class MapsActivity :
     }
 
     private fun placeMarkerOnMap(location: LatLng) {
-        val markerOptions = MarkerOptions().position(location)
+        val markerOptions = MarkerOptions()
+            .position(location)
+            .icon(BitmapDescriptorFactory.fromResource(R.drawable.greendot12))
+            .alpha (0.2f)
+            .anchor(0.5f, 0.5f)
         val titleStr = getAddress(location)  // add these two lines
         markerOptions.title(titleStr)
         map.addMarker(markerOptions)
     }
 
-    override fun onMarkerClick(p0: Marker?) = false
-    /*
-    override fun onMarkerClick(p0: Marker?): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-    */
-
-    private fun runTimerTask() {
-        timerTask = object : TimerTask() {
-            override fun run() {
-
-                runOnUiThread { Log.d("Folderen", "Folderen") }
-
-                runOnUiThread { printLocation() }
-
-            }
-        }
+    override fun onMarkerClick(marker: Marker): Boolean {
+        marker.title = "Clicked"
+        return false
     }
 
     private fun printLocation() {
@@ -318,7 +304,7 @@ class MapsActivity :
 
         // Check on permissions for fine location access granted.
         if (ActivityCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return
         }
 
@@ -386,7 +372,7 @@ class MapsActivity :
 
     override fun onPause() {
         super.onPause()
-        fusedLocationClient.removeLocationUpdates(locationCallback)
+        //fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
     public override fun onResume() {
