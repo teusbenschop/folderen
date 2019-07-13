@@ -56,6 +56,8 @@ class MainActivity() :
     private lateinit var locationRequest: LocationRequest
     private var locationUpdateState = false
 
+    private var tracingOn = false;
+
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
         private const val REQUEST_CHECK_SETTINGS = 2
@@ -72,28 +74,19 @@ class MainActivity() :
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
 
-        // Initialize the action bar drawer toggle instance
-        val drawerToggle:ActionBarDrawerToggle = object : ActionBarDrawerToggle(
-            this,
-            drawerLayout,
-            toolbar,
-            R.string.navigation_drawer_open,
-            R.string.navigation_drawer_close
-        ){
+        // Initialize the action bar drawer toggle instance.
+        val drawerToggle:ActionBarDrawerToggle = object : ActionBarDrawerToggle
+            (this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+        {
             override fun onDrawerClosed(view:View){
                 super.onDrawerClosed(view)
-                Log.d ("folderen", "drawer closed")
             }
-
-            override fun onDrawerOpened(drawerView: View){
-                super.onDrawerOpened(drawerView)
-                Log.d ("folderen", "drawer opened")
-                val traceSwitch: Switch = findViewById(R.id.switch_trace) // Todo
-                traceSwitch.setOnCheckedChangeListener { _: CompoundButton, b: Boolean -> run {
-                    if (b) Log.d("folderen", "tracing")
-                    else Log.d("folderen", "off")
+            override fun onDrawerOpened(view: View){
+                super.onDrawerOpened(view)
+                val traceSwitch: Switch = findViewById(R.id.switch_trace)
+                traceSwitch.setOnCheckedChangeListener { _: CompoundButton, state: Boolean -> run {
+                    tracingOn = state
                 }}
-
             }
         }
 
@@ -118,7 +111,9 @@ class MainActivity() :
                 super.onLocationResult(p0)
 
                 lastLocation = p0.lastLocation
-                placeMarkerOnMap(LatLng(lastLocation.latitude, lastLocation.longitude))
+                if (tracingOn) {
+                    placeMarkerOnMap(LatLng(lastLocation.latitude, lastLocation.longitude))
+                }
             }
         }
 
@@ -485,7 +480,9 @@ class MainActivity() :
 
     override fun onPause() {
         super.onPause()
-        //fusedLocationClient.removeLocationUpdates(locationCallback)
+        if (!tracingOn) {
+            fusedLocationClient.removeLocationUpdates(locationCallback)
+        }
     }
 
     public override fun onResume() {
