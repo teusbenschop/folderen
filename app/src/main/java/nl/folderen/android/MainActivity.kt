@@ -65,21 +65,20 @@ class MainActivity() :
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
-        val toggle = ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
-
 
         // Initialize the action bar drawer toggle instance
         val drawerToggle:ActionBarDrawerToggle = object : ActionBarDrawerToggle(
             this,
             drawerLayout,
             toolbar,
-            R.string.drawer_open,
-            R.string.drawer_close
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
         ){
             override fun onDrawerClosed(view:View){
                 super.onDrawerClosed(view)
@@ -97,9 +96,6 @@ class MainActivity() :
 
             }
         }
-
-        drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
 
         // Configure the drawer layout to add listener and show icon on toolbar
         drawerToggle.isDrawerIndicatorEnabled = true
