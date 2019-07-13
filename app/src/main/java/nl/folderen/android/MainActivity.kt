@@ -12,14 +12,15 @@ import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.view.*
 import androidx.core.view.GravityCompat
 import androidx.appcompat.app.ActionBarDrawerToggle
-import android.view.MenuItem
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import android.view.Menu
+import android.widget.CompoundButton
+import android.widget.Switch
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
@@ -69,11 +70,41 @@ class MainActivity() :
 
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
-        val toggle = ActionBarDrawerToggle(
-            this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close
-        )
+        val toggle = ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+
+
+        // Initialize the action bar drawer toggle instance
+        val drawerToggle:ActionBarDrawerToggle = object : ActionBarDrawerToggle(
+            this,
+            drawerLayout,
+            toolbar,
+            R.string.drawer_open,
+            R.string.drawer_close
+        ){
+            override fun onDrawerClosed(view:View){
+                super.onDrawerClosed(view)
+                Log.d ("folderen", "drawer closed")
+            }
+
+            override fun onDrawerOpened(drawerView: View){
+                super.onDrawerOpened(drawerView)
+                Log.d ("folderen", "drawer opened")
+                val traceSwitch: Switch = findViewById(R.id.switch_trace) // Todo
+                traceSwitch.setOnCheckedChangeListener { _: CompoundButton, b: Boolean -> run {
+                    if (b) Log.d("folderen", "tracing")
+                    else Log.d("folderen", "off")
+                }}
+
+            }
+        }
+
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
+
+        // Configure the drawer layout to add listener and show icon on toolbar
+        drawerToggle.isDrawerIndicatorEnabled = true
+        drawerLayout.addDrawerListener(drawerToggle)
+        drawerToggle.syncState()
 
         navView.setNavigationItemSelectedListener(this)
 
@@ -162,6 +193,9 @@ class MainActivity() :
 
             }
             R.id.nav_send -> {
+
+            }
+            R.id.menu_trace -> {
 
             }
         }
