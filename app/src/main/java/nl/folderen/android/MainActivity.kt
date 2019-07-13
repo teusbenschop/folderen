@@ -221,7 +221,9 @@ class MainActivity() :
         }
 
         // Enable the my-location layer.
+        // While enabled and the location is available,
         // It draws a light blue dot on the user’s location.
+        // It the user walks, then this dot will also have an arrow to indicate the direction of movement.
         // It also adds a button to the map that, when tapped, centers the map on the user’s location.
         map.isMyLocationEnabled = true
 
@@ -236,7 +238,10 @@ class MainActivity() :
             if (location != null) {
                 lastLocation = location
                 val currentLatLng = LatLng(location.latitude, location.longitude)
-                //placeMarkerOnMap(currentLatLng)
+                val address = getAddress(currentLatLng)
+                Log.d ("got address", address)
+
+                    //placeMarkerOnMap(currentLatLng)
                 /*
                 val place = LatLng(52.0115205, 4.7104633)
                 map.addMarker(MarkerOptions().position(place).title("My place"))
@@ -394,6 +399,7 @@ class MainActivity() :
             // If the response contains any address, then append it to a string and return.
             if (null != addresses && !addresses.isEmpty()) {
                 address = addresses[0]
+                Log.d ("folderen", address.toString())
                 for (i in 0 until address.maxAddressLineIndex) {
                     addressText += if (i == 0) address.getAddressLine(i) else "\n" + address.getAddressLine(i)
                 }
