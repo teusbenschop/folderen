@@ -17,7 +17,13 @@
             app:actionLayout="@layout/switch_item"
     />
 
+    <item
+            android:id="@+id/nav_ready"
+            android:icon="@drawable/tick"
+            android:title="@string/ready"
+    />
 
+<!--
     <group android:checkableBehavior="single">
         <item
                 android:id="@+id/nav_home"
@@ -49,5 +55,6 @@
                     android:title="@string/menu_send"/>
         </menu>
     </item>
+-->
 
 </menu>

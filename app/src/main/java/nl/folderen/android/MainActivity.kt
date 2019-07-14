@@ -198,6 +198,19 @@ class MainActivity() :
                     parkMarker = map.addMarker(markerOptions)
                 }
             }
+            R.id.nav_ready -> {
+                val region = map.projection.visibleRegion;
+                val farleft = region.farLeft
+                val farright = region.farRight
+                val nearright = region.nearRight
+                val nearleft = region.nearLeft
+                val markerOptions = MarkerOptions().position(farleft)
+                parkMarker = map.addMarker(markerOptions)
+                map.animateCamera(CameraUpdateFactory.zoomBy(-0.25f))
+
+
+            }
+            /*
             R.id.nav_home -> {
                 // Handle the camera action
             }
@@ -216,6 +229,7 @@ class MainActivity() :
             R.id.nav_send -> {
 
             }
+            */
         }
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         drawerLayout.closeDrawer(GravityCompat.START)
