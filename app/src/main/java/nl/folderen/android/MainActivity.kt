@@ -35,17 +35,23 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import java.io.IOException
 
 
 // The parts related to Google Maps, and to the Fused Location Client were based on this helpful tutorial:
 // https://www.raywenderlich.com/230-introduction-to-google-maps-api-for-android-with-kotlin#toc-anchor-001
+
+// API references:
+// https://developers.google.com/maps/documentation/android-sdk/intro
+// https://developers.google.com/maps/documentation/geocoding/intro
+
 
 
 class MainActivity() :
     AppCompatActivity(),
     OnMapReadyCallback,
     GoogleMap.OnMarkerClickListener,
+    GoogleMap.OnMapClickListener,
+    GoogleMap.OnMapLongClickListener,
     NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var map: GoogleMap
@@ -56,7 +62,8 @@ class MainActivity() :
     private lateinit var locationRequest: LocationRequest
     private var locationUpdateState = false
 
-    private var tracingOn = false;
+    private var tracingOn = false
+    private lateinit var parkMarker : Marker
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
@@ -136,6 +143,8 @@ class MainActivity() :
 
         map.getUiSettings().setZoomControlsEnabled(true)
         map.setOnMarkerClickListener(this)
+        map.setOnMapClickListener(this)
+        map.setOnMapLongClickListener(this)
 
         setUpMap()
     }
@@ -168,6 +177,20 @@ class MainActivity() :
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         when (item.itemId) {
+            R.id.menu_trace -> {
+
+            }
+            R.id.nav_park -> {
+                if (::parkMarker.isInitialized) {
+                    parkMarker.remove()
+                }
+                val latlng = LatLng(lastLocation.latitude, lastLocation.longitude)
+                val markerOptions = MarkerOptions()
+                    .position(latlng)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.bicycle50))
+                    .anchor(0.5f, 0.5f)
+                parkMarker = map.addMarker(markerOptions)
+            }
             R.id.nav_home -> {
                 // Handle the camera action
             }
@@ -184,9 +207,6 @@ class MainActivity() :
 
             }
             R.id.nav_send -> {
-
-            }
-            R.id.menu_trace -> {
 
             }
         }
@@ -207,8 +227,6 @@ class MainActivity() :
             .icon(BitmapDescriptorFactory.fromResource(R.drawable.greendot12))
             .alpha (0.2f)
             .anchor(0.5f, 0.5f)
-        val titleStr = getAddress(location)  // add these two lines
-        markerOptions.title(titleStr)
         map.addMarker(markerOptions)
     }
 
@@ -254,6 +272,7 @@ class MainActivity() :
                 map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 12f))
             }
         }
+
     }
 
 
@@ -404,7 +423,7 @@ class MainActivity() :
                     addressText += if (i == 0) address.getAddressLine(i) else "\n" + address.getAddressLine(i)
                 }
             }
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             Log.e("MapsActivity", e.localizedMessage)
         }
 
@@ -486,6 +505,7 @@ class MainActivity() :
 
     override fun onPause() {
         super.onPause()
+        Log.d ("folderen", tracingOn.toString()); // Todo
         if (!tracingOn) {
             fusedLocationClient.removeLocationUpdates(locationCallback)
         }
@@ -499,5 +519,13 @@ class MainActivity() :
     }
 
 
+    override fun onMapClick(point: LatLng) {
+        Log.d("Map_Tag", "CLICK")
+    }
+
+
+    override fun onMapLongClick(point: LatLng) {
+        Log.d("Map_Tag", "LONG CLICK")
+    }
 
 }

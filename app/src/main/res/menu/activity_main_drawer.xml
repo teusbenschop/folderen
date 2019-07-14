@@ -9,6 +9,11 @@
             app:showAsAction="always"
             app:actionLayout="@layout/switch_item"/>
 
+    <item
+            android:id="@+id/nav_park"
+            android:icon="@drawable/bicycle50"
+            android:title="@string/park"/>
+
     <group android:checkableBehavior="single">
         <item
                 android:id="@+id/nav_home"
