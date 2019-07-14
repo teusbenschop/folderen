@@ -4,15 +4,19 @@
       tools:showIn="navigation_view">
 
     <item
-            android:id="@+id/menu_trace"
-            android:title="@string/flyering"
-            app:showAsAction="always"
-            app:actionLayout="@layout/switch_item"/>
-
-    <item
             android:id="@+id/nav_park"
             android:icon="@drawable/bicycle50"
-            android:title="@string/park"/>
+            android:title="@string/park"
+    />
+
+    <item
+            android:id="@+id/nav_trace"
+            android:icon="@drawable/flyering50"
+            android:title="@string/flyering"
+            app:showAsAction="always"
+            app:actionLayout="@layout/switch_item"
+    />
+
 
     <group android:checkableBehavior="single">
         <item
