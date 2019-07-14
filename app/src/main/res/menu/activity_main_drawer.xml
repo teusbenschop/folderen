@@ -5,7 +5,7 @@
 
     <item
             android:id="@+id/menu_trace"
-            android:title="@string/tracing"
+            android:title="@string/flyering"
             app:showAsAction="always"
             app:actionLayout="@layout/switch_item"/>
 
