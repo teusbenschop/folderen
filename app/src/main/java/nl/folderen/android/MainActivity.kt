@@ -181,15 +181,19 @@ class MainActivity() :
 
             }
             R.id.nav_park -> {
+                // If there's a marker from a previous park location, remove it.
                 if (::parkMarker.isInitialized) {
                     parkMarker.remove()
                 }
-                val latlng = LatLng(lastLocation.latitude, lastLocation.longitude)
-                val markerOptions = MarkerOptions()
-                    .position(latlng)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.bicycle50))
-                    .anchor(0.5f, 0.5f)
-                parkMarker = map.addMarker(markerOptions)
+                // Put a bicycle marker on the map at the current location.
+                if (::lastLocation.isInitialized) {
+                    val latlng = LatLng(lastLocation.latitude, lastLocation.longitude)
+                    val markerOptions = MarkerOptions()
+                        .position(latlng)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.bicycle50))
+                        .anchor(0.5f, 0.5f)
+                    parkMarker = map.addMarker(markerOptions)
+                }
             }
             R.id.nav_home -> {
                 // Handle the camera action
