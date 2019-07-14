@@ -180,7 +180,7 @@ class MainActivity() :
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         when (item.itemId) {
-            R.id.menu_trace -> {
+            R.id.nav_trace -> {
 
             }
             R.id.nav_park -> {
