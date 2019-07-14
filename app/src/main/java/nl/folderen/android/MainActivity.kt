@@ -44,6 +44,9 @@ import com.google.android.gms.maps.model.MarkerOptions
 // https://developers.google.com/maps/documentation/android-sdk/intro
 // https://developers.google.com/maps/documentation/geocoding/intro
 
+// https://developer.android.com/training/location/display-address
+// GeoCoder requires a network connection to work.
+// So that is not suitable for this app.
 
 
 class MainActivity() :
