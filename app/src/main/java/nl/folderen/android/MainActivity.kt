@@ -31,11 +31,8 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
-
+import com.google.android.gms.maps.model.*
+import com.google.maps.android.SphericalUtil.interpolate
 
 // The parts related to Google Maps, and to the Fused Location Client were based on this helpful tutorial:
 // https://www.raywenderlich.com/230-introduction-to-google-maps-api-for-android-with-kotlin#toc-anchor-001
@@ -43,10 +40,10 @@ import com.google.android.gms.maps.model.MarkerOptions
 // API references:
 // https://developers.google.com/maps/documentation/android-sdk/intro
 // https://developers.google.com/maps/documentation/geocoding/intro
-
 // https://developer.android.com/training/location/display-address
 // GeoCoder requires a network connection to work.
 // So that is not suitable for this app.
+// http://googlemaps.github.io/android-maps-utils/javadoc/
 
 
 class MainActivity() :
@@ -200,13 +197,55 @@ class MainActivity() :
             }
             R.id.nav_ready -> {
                 val region = map.projection.visibleRegion;
-                val farleft = region.farLeft
-                val farright = region.farRight
-                val nearright = region.nearRight
-                val nearleft = region.nearLeft
-                val markerOptions = MarkerOptions().position(farleft)
-                parkMarker = map.addMarker(markerOptions)
-                map.animateCamera(CameraUpdateFactory.zoomBy(-0.25f))
+
+                // Create markers at the four corners of the visible region.
+                // Position them slightly off the corners towards the center.
+                var farleftPosition = interpolate (region.farLeft, region.nearRight, 0.1)
+                var farrightPosition = interpolate (region.farRight, region.nearLeft, 0.1)
+                var nearrightPosition = interpolate (region.nearRight, region.farLeft, 0.1)
+                var nearleftPosition = interpolate (region.nearLeft, region.farRight, 0.1)
+
+                // Create another four markers in-between the markers at the corners.
+                // So the total number of markers will be eight all together.
+                var leftcenterPosition = interpolate (farleftPosition, nearleftPosition, 0.5)
+                var rightcenterPosition = interpolate (farrightPosition, nearrightPosition, 0.5)
+                var farcenterPosition = interpolate (farleftPosition, farrightPosition, 0.5)
+                var nearcenterPosition = interpolate (nearleftPosition, nearrightPosition, 0.5)
+
+                var markerOptions : MarkerOptions
+
+                markerOptions = MarkerOptions().position(farleftPosition)
+                val farLeftMarker = map.addMarker(markerOptions)
+                markerOptions = MarkerOptions().position(farrightPosition)
+                val farRightMarker = map.addMarker(markerOptions)
+                markerOptions = MarkerOptions().position(nearleftPosition)
+                val nearLeftMarker = map.addMarker(markerOptions)
+                markerOptions = MarkerOptions().position(nearrightPosition)
+                val nearRightMarker = map.addMarker(markerOptions)
+
+                markerOptions = MarkerOptions().position(leftcenterPosition)
+                val centerLeftMarker = map.addMarker(markerOptions)
+                markerOptions = MarkerOptions().position(rightcenterPosition)
+                val centerRightMarker = map.addMarker(markerOptions)
+                markerOptions = MarkerOptions().position(farcenterPosition)
+                val centerFarMarker = map.addMarker(markerOptions)
+                markerOptions = MarkerOptions().position(nearcenterPosition)
+                val centerNearMarker = map.addMarker(markerOptions)
+
+                val polygonOptions = PolygonOptions()
+                    .add (
+                        nearcenterPosition,
+                        nearleftPosition,
+                        leftcenterPosition,
+                        farleftPosition,
+                        farcenterPosition,
+                        farrightPosition,
+                        rightcenterPosition,
+                        nearrightPosition
+                    )
+                val polygon = map.addPolygon((polygonOptions))
+                polygon.setTag("alpha");
+
 
 
             }
