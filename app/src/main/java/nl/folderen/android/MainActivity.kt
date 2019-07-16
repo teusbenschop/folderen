@@ -29,6 +29,7 @@ import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
@@ -50,6 +51,7 @@ class MainActivity() :
     AppCompatActivity(),
     OnMapReadyCallback,
     GoogleMap.OnMarkerClickListener,
+    OnMarkerDragListener,
     GoogleMap.OnMapClickListener,
     GoogleMap.OnMapLongClickListener,
     NavigationView.OnNavigationItemSelectedListener {
@@ -64,6 +66,16 @@ class MainActivity() :
 
     private var tracingOn = false
     private lateinit var parkMarker : Marker
+
+    private lateinit var farleftMarker : Marker
+    private lateinit var farrightMarker : Marker
+    private lateinit var nearleftMarker : Marker
+    private lateinit var nearrightMarker : Marker
+    private lateinit var leftcenterMarker : Marker
+    private lateinit var rightcenterMarker : Marker
+    private lateinit var farcenterMarker : Marker
+    private lateinit var nearcenterMarker : Marker
+    private lateinit var readyPolygon : Polygon
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
@@ -143,6 +155,7 @@ class MainActivity() :
 
         map.getUiSettings().setZoomControlsEnabled(true)
         map.setOnMarkerClickListener(this)
+        map.setOnMarkerDragListener(this)
         map.setOnMapClickListener(this)
         map.setOnMapLongClickListener(this)
 
@@ -212,39 +225,64 @@ class MainActivity() :
                 var farcenterPosition = interpolate (farleftPosition, farrightPosition, 0.5)
                 var nearcenterPosition = interpolate (nearleftPosition, nearrightPosition, 0.5)
 
-                var markerOptions : MarkerOptions
+                var markerOptions : MarkerOptions = MarkerOptions().draggable(true) // Todo
 
-                markerOptions = MarkerOptions().position(farleftPosition)
-                val farLeftMarker = map.addMarker(markerOptions)
-                markerOptions = MarkerOptions().position(farrightPosition)
-                val farRightMarker = map.addMarker(markerOptions)
-                markerOptions = MarkerOptions().position(nearleftPosition)
-                val nearLeftMarker = map.addMarker(markerOptions)
-                markerOptions = MarkerOptions().position(nearrightPosition)
-                val nearRightMarker = map.addMarker(markerOptions)
+                markerOptions.position(farleftPosition)
+                farleftMarker = map.addMarker(markerOptions)
+                markerOptions.position(farrightPosition)
+                farrightMarker = map.addMarker(markerOptions)
+                markerOptions.position(nearleftPosition)
+                nearleftMarker = map.addMarker(markerOptions)
+                markerOptions.position(nearrightPosition)
+                nearrightMarker = map.addMarker(markerOptions)
 
-                markerOptions = MarkerOptions().position(leftcenterPosition)
-                val centerLeftMarker = map.addMarker(markerOptions)
-                markerOptions = MarkerOptions().position(rightcenterPosition)
-                val centerRightMarker = map.addMarker(markerOptions)
-                markerOptions = MarkerOptions().position(farcenterPosition)
-                val centerFarMarker = map.addMarker(markerOptions)
-                markerOptions = MarkerOptions().position(nearcenterPosition)
-                val centerNearMarker = map.addMarker(markerOptions)
+                markerOptions.position(leftcenterPosition)
+                leftcenterMarker = map.addMarker(markerOptions)
+                markerOptions.position(rightcenterPosition)
+                rightcenterMarker = map.addMarker(markerOptions)
+                markerOptions.position(farcenterPosition)
+                farcenterMarker = map.addMarker(markerOptions)
+                markerOptions.position(nearcenterPosition)
+                nearcenterMarker = map.addMarker(markerOptions)
 
                 val polygonOptions = PolygonOptions()
                     .add (
-                        nearcenterPosition,
-                        nearleftPosition,
-                        leftcenterPosition,
-                        farleftPosition,
-                        farcenterPosition,
-                        farrightPosition,
-                        rightcenterPosition,
-                        nearrightPosition
+                        nearcenterMarker.position,
+                        nearleftMarker.position,
+                        leftcenterMarker.position,
+                        farleftMarker.position,
+                        farcenterMarker.position,
+                        farrightMarker.position,
+                        rightcenterMarker.position,
+                        nearrightMarker.position
                     )
-                val polygon = map.addPolygon((polygonOptions))
-                polygon.setTag("alpha");
+                readyPolygon = map.addPolygon((polygonOptions))
+                readyPolygon.setTag("alpha");
+                //polygon.remove();
+
+
+
+                /*
+                // If there's buttons from a previous complete-operation, remove them. Todo
+                if (::parkMarker.isInitialized) {
+                    parkMarker.remove()
+                }
+                */
+                // Put an okay button and a cancel button on the map at about the center of the screen.
+                val cancelPosition = interpolate (leftcenterPosition, rightcenterPosition, 0.3)
+                val okayPosition = interpolate (rightcenterPosition, leftcenterPosition, 0.3)
+                markerOptions = MarkerOptions()
+                    .position(cancelPosition)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.cross50))
+                    .anchor(0.5f, 0.5f)
+                    .alpha(0.5f)
+                val cancelMarker = map.addMarker(markerOptions)
+                markerOptions = MarkerOptions()
+                    .position(okayPosition)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.tick50))
+                    .anchor(0.5f, 0.5f)
+                    .alpha(0.5f)
+                val okayMarker = map.addMarker(markerOptions)
 
 
 
@@ -275,9 +313,36 @@ class MainActivity() :
         return true
     }
 
+
     override fun onMarkerClick(marker: Marker): Boolean {
-        marker.title = "Clicked"
+        // Return false to indicate that we have not consumed the event
+        // and that we wish for the default behavior to occur
+        // (which is for the camera to move such that the marker is centered
+        // and for the marker's info window to open, if it has one).
         return false
+    }
+
+
+    override fun onMarkerDragStart(marker: Marker) { // Todo
+    }
+    override fun onMarkerDrag(marker: Marker) { // Todo
+        Log.d ("folderen", "Dragging")
+
+
+        var positions : List<LatLng> = mutableListOf (
+            nearcenterMarker.position,
+            nearleftMarker.position,
+            leftcenterMarker.position,
+            farleftMarker.position,
+            farcenterMarker.position,
+            farrightMarker.position,
+            rightcenterMarker.position,
+            nearrightMarker.position
+        )
+        readyPolygon.points = positions;
+
+    }
+    override fun onMarkerDragEnd(marker: Marker) { // Todo
     }
 
 
@@ -587,5 +652,19 @@ class MainActivity() :
     override fun onMapLongClick(point: LatLng) {
         Log.d("Map_Tag", "LONG CLICK")
     }
+
+
+    private fun getCenterOfPolygon (list : List<LatLng>) : LatLng // Todo out?
+    {
+        val centroid : DoubleArray = doubleArrayOf(0.0, 0.0)
+        for (point : LatLng in list) {
+            centroid[0] += point.latitude;
+            centroid[1] += point.longitude;
+        }
+        val totalPoints = list.size
+        return LatLng(centroid[0] / totalPoints, centroid[1] / totalPoints)
+    }
+
+
 
 }
