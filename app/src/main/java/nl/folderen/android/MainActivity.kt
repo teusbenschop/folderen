@@ -112,6 +112,11 @@ class MainActivity() :
                 traceSwitch.setOnCheckedChangeListener { _: CompoundButton, state: Boolean -> run {
                     tracingOn = state
                 }}
+                val showAreasReadySwitch: Switch = findViewById(R.id.switch_show_ready)
+                showAreasReadySwitch.setOnCheckedChangeListener { _: CompoundButton, state: Boolean -> run {
+                    Log.d ("folderen", "checkedchangelistener")
+                    toggleShowAreasReady (state)
+                }}
             }
         }
 
@@ -725,6 +730,8 @@ class MainActivity() :
 
     private fun drawReadyBoundary (positions : List<LatLng>) // Todo
     {
+
+        Log.d ("folderen", "drawReadyBoundary")
         val color = ColorUtils.blendARGB(GREEN, WHITE, 0.5f)
         var polygonOptions = PolygonOptions()
             .addAll(positions)
@@ -733,5 +740,20 @@ class MainActivity() :
 
         val polygon = map.addPolygon((polygonOptions))
         polygon.setTag("ready");
+    }
+
+
+    private fun toggleShowAreasReady (show : Boolean) // Todo
+    {
+        if (show) {
+            val db = FlyeringDatabaseHelper (applicationContext)
+            val areas = db.getAreas ()
+            for (area in areas) {
+                drawReadyBoundary( (area))
+            }
+
+
+        }
+
     }
 }

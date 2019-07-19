@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.provider.BaseColumns
+import android.util.Log
 import com.google.android.gms.maps.model.LatLng
 
 
@@ -141,5 +142,62 @@ class FlyeringDatabaseHelper (context: Context) :
         this.close()
     }
 
+
+    fun getAreas () : List<List<LatLng>>
+    {
+        // Storage for the areas that are going to be read from the database.
+        var areas : MutableList<List<LatLng>> = mutableListOf<List<LatLng>>()
+
+        // Get a connection to the database in read mode.
+        val db = this.readableDatabase
+
+        val cursor = db.query (
+            FlyeringContract.AreaEntry.TABLE_NAME, // The table to query.
+            null, // The columns to return, or null to get them all.
+            null, // The columns for the WHERE clause.
+            null, // The values for the WHERE clause.
+            null, // Grouping.
+            null, // Filtering by row groups.
+            null // Ordering clause.
+        )
+
+        while (cursor.moveToNext()) {
+
+            val latitude0 = cursor.getDouble(cursor.getColumnIndex(FlyeringContract.AreaEntry.COLUMN_NAME_LATITUDE0))
+            val longitude0 = cursor.getDouble(cursor.getColumnIndex(FlyeringContract.AreaEntry.COLUMN_NAME_lONGITUDE0))
+            val latitude1 = cursor.getDouble(cursor.getColumnIndex(FlyeringContract.AreaEntry.COLUMN_NAME_LATITUDE1))
+            val longitude1 = cursor.getDouble(cursor.getColumnIndex(FlyeringContract.AreaEntry.COLUMN_NAME_lONGITUDE1))
+            val latitude2 = cursor.getDouble(cursor.getColumnIndex(FlyeringContract.AreaEntry.COLUMN_NAME_LATITUDE2))
+            val longitude2 = cursor.getDouble(cursor.getColumnIndex(FlyeringContract.AreaEntry.COLUMN_NAME_lONGITUDE2))
+            val latitude3 = cursor.getDouble(cursor.getColumnIndex(FlyeringContract.AreaEntry.COLUMN_NAME_LATITUDE3))
+            val longitude3 = cursor.getDouble(cursor.getColumnIndex(FlyeringContract.AreaEntry.COLUMN_NAME_lONGITUDE3))
+            val latitude4 = cursor.getDouble(cursor.getColumnIndex(FlyeringContract.AreaEntry.COLUMN_NAME_LATITUDE4))
+            val longitude4 = cursor.getDouble(cursor.getColumnIndex(FlyeringContract.AreaEntry.COLUMN_NAME_lONGITUDE4))
+            val latitude5 = cursor.getDouble(cursor.getColumnIndex(FlyeringContract.AreaEntry.COLUMN_NAME_LATITUDE5))
+            val longitude5 = cursor.getDouble(cursor.getColumnIndex(FlyeringContract.AreaEntry.COLUMN_NAME_lONGITUDE5))
+            val latitude6 = cursor.getDouble(cursor.getColumnIndex(FlyeringContract.AreaEntry.COLUMN_NAME_LATITUDE6))
+            val longitude6 = cursor.getDouble(cursor.getColumnIndex(FlyeringContract.AreaEntry.COLUMN_NAME_lONGITUDE6))
+            val latitude7 = cursor.getDouble(cursor.getColumnIndex(FlyeringContract.AreaEntry.COLUMN_NAME_LATITUDE7))
+            val longitude7 = cursor.getDouble(cursor.getColumnIndex(FlyeringContract.AreaEntry.COLUMN_NAME_lONGITUDE7))
+
+            val latlng0 = LatLng (latitude0, longitude0)
+            val latlng1 = LatLng (latitude1, longitude1)
+            val latlng2 = LatLng (latitude2, longitude2)
+            val latlng3 = LatLng (latitude3, longitude3)
+            val latlng4 = LatLng (latitude4, longitude4)
+            val latlng5 = LatLng (latitude5, longitude5)
+            val latlng6 = LatLng (latitude6, longitude6)
+            val latlng7 = LatLng (latitude7, longitude7)
+
+            val area = listOf (latlng0, latlng1, latlng2, latlng3, latlng4, latlng5, latlng6, latlng7)
+            areas.add(area)
+        }
+
+        // Close the database connection.
+        this.close()
+
+        // Hand the areas to the caller.
+        return areas
+    }
 
 }

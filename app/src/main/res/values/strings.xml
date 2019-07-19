@@ -16,5 +16,6 @@
     <string name="menu_send">Send</string>
     <string name="park">Parkeer</string>
     <string name="ready">Markeer als klaar</string>
+    <string name="showready">Toon klaar</string>
 
 </resources>
