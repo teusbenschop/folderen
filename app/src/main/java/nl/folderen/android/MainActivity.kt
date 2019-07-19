@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.graphics.Color.*
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
@@ -25,6 +26,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.ColorUtils
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -54,7 +56,8 @@ class MainActivity() :
     OnMarkerDragListener,
     GoogleMap.OnMapClickListener,
     GoogleMap.OnMapLongClickListener,
-    NavigationView.OnNavigationItemSelectedListener {
+    NavigationView.OnNavigationItemSelectedListener
+{
 
     private lateinit var map: GoogleMap
 
@@ -76,6 +79,9 @@ class MainActivity() :
     private lateinit var farcenterMarker : Marker
     private lateinit var nearcenterMarker : Marker
     private lateinit var readyPolygon : Polygon
+
+    private lateinit var cancelMarker : Marker
+    private lateinit var okayMarker : Marker
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
@@ -137,7 +143,6 @@ class MainActivity() :
         }
 
         createLocationRequest()
-
     }
 
 
@@ -258,7 +263,6 @@ class MainActivity() :
                     )
                 readyPolygon = map.addPolygon((polygonOptions))
                 readyPolygon.setTag("alpha");
-                //polygon.remove();
 
 
 
@@ -276,13 +280,13 @@ class MainActivity() :
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.cross50))
                     .anchor(0.5f, 0.5f)
                     .alpha(0.5f)
-                val cancelMarker = map.addMarker(markerOptions)
+                cancelMarker = map.addMarker(markerOptions)
                 markerOptions = MarkerOptions()
                     .position(okayPosition)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.tick50))
                     .anchor(0.5f, 0.5f)
                     .alpha(0.5f)
-                val okayMarker = map.addMarker(markerOptions)
+                okayMarker = map.addMarker(markerOptions)
 
 
 
@@ -314,7 +318,22 @@ class MainActivity() :
     }
 
 
-    override fun onMarkerClick(marker: Marker): Boolean {
+    override fun onMarkerClick(marker: Marker): Boolean { // Todo
+
+        // Handle the area markup cancel button.
+        if (marker.equals(cancelMarker)) {
+            // Remove the area.
+            finalizeReadyArea (false)
+            return true
+        }
+
+        // Handle the area markup accept button.
+        if (marker.equals(okayMarker)) {
+            // Make the area permanent.
+            finalizeReadyArea((true))
+            return true
+        }
+
         // Return false to indicate that we have not consumed the event
         // and that we wish for the default behavior to occur
         // (which is for the camera to move such that the marker is centered
@@ -326,19 +345,7 @@ class MainActivity() :
     override fun onMarkerDragStart(marker: Marker) { // Todo
     }
     override fun onMarkerDrag(marker: Marker) { // Todo
-        Log.d ("folderen", "Dragging")
-
-
-        var positions : List<LatLng> = mutableListOf (
-            nearcenterMarker.position,
-            nearleftMarker.position,
-            leftcenterMarker.position,
-            farleftMarker.position,
-            farcenterMarker.position,
-            farrightMarker.position,
-            rightcenterMarker.position,
-            nearrightMarker.position
-        )
+        val positions = getReadyPositions()
         readyPolygon.points = positions;
 
     }
@@ -630,7 +637,6 @@ class MainActivity() :
 
     override fun onPause() {
         super.onPause()
-        Log.d ("folderen", tracingOn.toString()); // Todo
         if (!tracingOn) {
             fusedLocationClient.removeLocationUpdates(locationCallback)
         }
@@ -666,5 +672,66 @@ class MainActivity() :
     }
 
 
+    private fun finalizeReadyArea (accept : Boolean) // Todo
+    {
+        // Remove the two buttons.
+        cancelMarker.remove()
+        okayMarker.remove()
 
+        // Get the positions of the markers indicating the boundary of the area that is ready.
+        val positions = getReadyPositions()
+
+        // Remove all the boundary markers.
+        nearcenterMarker.remove()
+        nearleftMarker.remove()
+        leftcenterMarker.remove()
+        farleftMarker.remove()
+        farcenterMarker.remove()
+        farrightMarker.remove()
+        rightcenterMarker.remove()
+        nearrightMarker.remove()
+
+        // Remove the boundary polygon.
+        readyPolygon.remove()
+
+        // Handle the case that the boundary is accepted by the user.
+        if (accept) {
+
+            // Draw the area on the screen.
+            drawReadyBoundary((positions))
+
+            // Store the area in the database.
+            val db = FlyeringDatabaseHelper (applicationContext)
+            db.saveArea(positions)
+        }
+    }
+
+
+    private fun getReadyPositions () : List<LatLng>
+    {
+        val positions : List<LatLng> = listOf (
+            nearcenterMarker.position,
+            nearleftMarker.position,
+            leftcenterMarker.position,
+            farleftMarker.position,
+            farcenterMarker.position,
+            farrightMarker.position,
+            rightcenterMarker.position,
+            nearrightMarker.position
+        )
+        return positions
+    }
+
+
+    private fun drawReadyBoundary (positions : List<LatLng>) // Todo
+    {
+        val color = ColorUtils.blendARGB(GREEN, WHITE, 0.5f)
+        var polygonOptions = PolygonOptions()
+            .addAll(positions)
+            .strokeColor(color)
+            .fillColor(color)
+
+        val polygon = map.addPolygon((polygonOptions))
+        polygon.setTag("ready");
+    }
 }
