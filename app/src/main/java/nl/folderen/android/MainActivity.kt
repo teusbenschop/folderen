@@ -47,6 +47,8 @@ import com.google.maps.android.SphericalUtil.interpolate
 // GeoCoder requires a network connection to work.
 // So that is not suitable for this app.
 // http://googlemaps.github.io/android-maps-utils/javadoc/
+// https://developers.google.com/maps/documentation/android-sdk/polygon-tutorial
+// https://developer.android.com/reference/android/location/Location.html
 
 
 class MainActivity() :
