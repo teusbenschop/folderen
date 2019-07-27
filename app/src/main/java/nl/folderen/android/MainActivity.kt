@@ -83,6 +83,8 @@ class MainActivity() :
     private lateinit var cancelMarker : Marker
     private lateinit var okayMarker : Marker
 
+    private var polygonsOnMap : MutableList<Polygon> = mutableListOf<Polygon>() // Todo
+
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
         private const val REQUEST_CHECK_SETTINGS = 2
@@ -235,7 +237,7 @@ class MainActivity() :
                 var farcenterPosition = interpolate (farleftPosition, farrightPosition, 0.5)
                 var nearcenterPosition = interpolate (nearleftPosition, nearrightPosition, 0.5)
 
-                var markerOptions : MarkerOptions = MarkerOptions().draggable(true) // Todo
+                var markerOptions : MarkerOptions = MarkerOptions().draggable(true)
 
                 markerOptions.position(farleftPosition)
                 farleftMarker = map.addMarker(markerOptions)
@@ -323,7 +325,7 @@ class MainActivity() :
     }
 
 
-    override fun onMarkerClick(marker: Marker): Boolean { // Todo
+    override fun onMarkerClick(marker: Marker): Boolean {
 
         // Handle the area markup cancel button.
         if (marker.equals(cancelMarker)) {
@@ -347,14 +349,14 @@ class MainActivity() :
     }
 
 
-    override fun onMarkerDragStart(marker: Marker) { // Todo
+    override fun onMarkerDragStart(marker: Marker) {
     }
-    override fun onMarkerDrag(marker: Marker) { // Todo
+    override fun onMarkerDrag(marker: Marker) {
         val positions = getReadyPositions()
         readyPolygon.points = positions;
 
     }
-    override fun onMarkerDragEnd(marker: Marker) { // Todo
+    override fun onMarkerDragEnd(marker: Marker) {
     }
 
 
@@ -665,7 +667,7 @@ class MainActivity() :
     }
 
 
-    private fun getCenterOfPolygon (list : List<LatLng>) : LatLng // Todo out?
+    private fun getCenterOfPolygon (list : List<LatLng>) : LatLng
     {
         val centroid : DoubleArray = doubleArrayOf(0.0, 0.0)
         for (point : LatLng in list) {
@@ -677,7 +679,7 @@ class MainActivity() :
     }
 
 
-    private fun finalizeReadyArea (accept : Boolean) // Todo
+    private fun finalizeReadyArea (accept : Boolean)
     {
         // Remove the two buttons.
         cancelMarker.remove()
@@ -728,10 +730,8 @@ class MainActivity() :
     }
 
 
-    private fun drawReadyBoundary (positions : List<LatLng>) // Todo
+    private fun drawReadyBoundary (positions : List<LatLng>)
     {
-
-        Log.d ("folderen", "drawReadyBoundary")
         val color = ColorUtils.blendARGB(GREEN, WHITE, 0.5f)
         var polygonOptions = PolygonOptions()
             .addAll(positions)
@@ -739,11 +739,11 @@ class MainActivity() :
             .fillColor(color)
 
         val polygon = map.addPolygon((polygonOptions))
-        polygon.setTag("ready");
+        polygonsOnMap.add(polygon)
     }
 
 
-    private fun toggleShowAreasReady (show : Boolean) // Todo
+    private fun toggleShowAreasReady (show : Boolean) // Todo remove polygons too.
     {
         if (show) {
             val db = FlyeringDatabaseHelper (applicationContext)
@@ -751,9 +751,11 @@ class MainActivity() :
             for (area in areas) {
                 drawReadyBoundary( (area))
             }
-
-
+        } else {
+            for (polygon in polygonsOnMap) {
+                polygon.remove ()
+            }
+            polygonsOnMap.clear()
         }
-
     }
 }
