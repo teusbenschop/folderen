@@ -85,7 +85,7 @@ class MainActivity() :
     private lateinit var cancelMarker : Marker
     private lateinit var okayMarker : Marker
 
-    private var polygonsOnMap : MutableList<Polygon> = mutableListOf<Polygon>() // Todo
+    private var polygonsOnMap : MutableList<Polygon> = mutableListOf<Polygon>()
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
@@ -273,14 +273,6 @@ class MainActivity() :
                 readyPolygon = map.addPolygon((polygonOptions))
                 readyPolygon.setTag("alpha");
 
-
-
-                /*
-                // If there's buttons from a previous complete-operation, remove them. Todo
-                if (::parkMarker.isInitialized) {
-                    parkMarker.remove()
-                }
-                */
                 // Put an okay button and a cancel button on the map at about the center of the screen.
                 val cancelPosition = interpolate (leftcenterPosition, rightcenterPosition, 0.3)
                 val okayPosition = interpolate (rightcenterPosition, leftcenterPosition, 0.3)
@@ -296,9 +288,6 @@ class MainActivity() :
                     .anchor(0.5f, 0.5f)
                     .alpha(0.5f)
                 okayMarker = map.addMarker(markerOptions)
-
-
-
             }
             /*
             R.id.nav_home -> {
@@ -745,7 +734,7 @@ class MainActivity() :
     }
 
 
-    private fun toggleShowAreasReady (show : Boolean) // Todo remove polygons too.
+    private fun toggleShowAreasReady (show : Boolean)
     {
         if (show) {
             val db = FlyeringDatabaseHelper (applicationContext)
