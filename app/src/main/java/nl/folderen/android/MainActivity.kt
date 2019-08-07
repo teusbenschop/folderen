@@ -87,7 +87,10 @@ class MainActivity() :
     private lateinit var cancelMarker : Marker
     private lateinit var okayMarker : Marker
 
+    private lateinit var closeDrawerTimerTask: TimerTask
+
     private var polygonsOnMap : MutableList<Polygon> = mutableListOf<Polygon>()
+
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
@@ -684,7 +687,15 @@ class MainActivity() :
 
     private fun closeDrawerDelayed ()
     {
-        Timer().schedule(800) {
+        // If the user has toggled a switch, normally it will then close the drawer with a delay.
+        // If the user then operates another toggle switch,
+        // then cancel the previous delay to close the drawer.
+        // This gives the user enough time to see the new state of the toggle switches.
+        if (::closeDrawerTimerTask.isInitialized) {
+            closeDrawerTimerTask.cancel()
+        }
+        // Close the drawer after a delay.
+        closeDrawerTimerTask = Timer().schedule(1500) {
             this@MainActivity.runOnUiThread(java.lang.Runnable {
                 val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
                 drawerLayout.closeDrawer(GravityCompat.START)
