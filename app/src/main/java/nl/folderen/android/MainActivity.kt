@@ -8,8 +8,6 @@ import android.content.IntentSender
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.graphics.Color.*
-import android.location.Address
-import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -227,17 +225,17 @@ class MainActivity() :
 
                 // Create markers at the four corners of the visible region.
                 // Position them slightly off the corners towards the center.
-                var farleftPosition = interpolate (region.farLeft, region.nearRight, 0.1)
-                var farrightPosition = interpolate (region.farRight, region.nearLeft, 0.1)
-                var nearrightPosition = interpolate (region.nearRight, region.farLeft, 0.1)
-                var nearleftPosition = interpolate (region.nearLeft, region.farRight, 0.1)
+                val farleftPosition = interpolate (region.farLeft, region.nearRight, 0.1)
+                val farrightPosition = interpolate (region.farRight, region.nearLeft, 0.1)
+                val nearrightPosition = interpolate (region.nearRight, region.farLeft, 0.1)
+                val nearleftPosition = interpolate (region.nearLeft, region.farRight, 0.1)
 
                 // Create another four markers in-between the markers at the corners.
                 // So the total number of markers will be eight all together.
-                var leftcenterPosition = interpolate (farleftPosition, nearleftPosition, 0.5)
-                var rightcenterPosition = interpolate (farrightPosition, nearrightPosition, 0.5)
-                var farcenterPosition = interpolate (farleftPosition, farrightPosition, 0.5)
-                var nearcenterPosition = interpolate (nearleftPosition, nearrightPosition, 0.5)
+                val leftcenterPosition = interpolate (farleftPosition, nearleftPosition, 0.5)
+                val rightcenterPosition = interpolate (farrightPosition, nearrightPosition, 0.5)
+                val farcenterPosition = interpolate (farleftPosition, farrightPosition, 0.5)
+                val nearcenterPosition = interpolate (nearleftPosition, nearrightPosition, 0.5)
 
                 var markerOptions : MarkerOptions = MarkerOptions().draggable(true)
 
@@ -386,15 +384,6 @@ class MainActivity() :
             if (location != null) {
                 lastLocation = location
                 val currentLatLng = LatLng(location.latitude, location.longitude)
-                val address = getAddress(currentLatLng)
-                Log.d ("got address", address)
-
-                    //placeMarkerOnMap(currentLatLng)
-                /*
-                val place = LatLng(52.0115205, 4.7104633)
-                map.addMarker(MarkerOptions().position(place).title("My place"))
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(place, 12.0f))
-                */
                 // Zoom level 0 corresponds to the fully zoomed-out world view.
                 // Most areas support zoom levels up to 20,
                 // while more remote areas only support zoom levels up to 13.
@@ -403,42 +392,6 @@ class MainActivity() :
             }
         }
 
-    }
-
-
-    private fun printLocation() {
-        Log.d ("folderen", "printLocation")
-        /*
-        var permissionsGranted = true
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            permissionsGranted = false
-        }
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            permissionsGranted = false
-        }
-        if (!permissionsGranted) {
-            Log.d("Folderen", "No permissions to access device's location")
-            return
-        }
-
-        fusedLocationClient.lastLocation.addOnSuccessListener(
-            this
-        ) { location ->
-            if (location != null) {
-                Log.d("Location", location!!.toString())
-            } else {
-                Log.d("Location", "is null")
-            }
-        }
-        */
     }
 
 
@@ -532,32 +485,6 @@ class MainActivity() :
         if (requestCode == REQUEST_CHECK_SETTINGS) {
             return;
         }
-    }
-
-
-    private fun getAddress(latLng: LatLng): String {
-        // Create a Geocoder object to turn a latitude and longitude coordinate into an address and vice versa.
-        val geocoder = Geocoder(this)
-        val addresses: List<Address>?
-        val address: Address?
-        var addressText = ""
-
-        try {
-            // Ask the geocoder to get the address from the location passed to the method.
-            addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
-            // If the response contains any address, then append it to a string and return.
-            if (null != addresses && !addresses.isEmpty()) {
-                address = addresses[0]
-                Log.d ("folderen", address.toString())
-                for (i in 0 until address.maxAddressLineIndex) {
-                    addressText += if (i == 0) address.getAddressLine(i) else "\n" + address.getAddressLine(i)
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("MapsActivity", e.localizedMessage)
-        }
-
-        return addressText
     }
 
 

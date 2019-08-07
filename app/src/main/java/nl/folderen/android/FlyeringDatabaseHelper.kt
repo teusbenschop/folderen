@@ -136,7 +136,7 @@ class FlyeringDatabaseHelper (context: Context) :
         }
 
         // Insert the new row, returning the primary key value of the new row
-        val newRowId = db?.insert(FlyeringContract.AreaEntry.TABLE_NAME, null, values)
+        db?.insert(FlyeringContract.AreaEntry.TABLE_NAME, null, values)
 
         // Close the database connection.
         this.close()
