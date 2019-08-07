@@ -34,6 +34,10 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.SphericalUtil.interpolate
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.concurrent.schedule
+
 
 // The parts related to Google Maps, and to the Fused Location Client were based on this helpful tutorial:
 // https://www.raywenderlich.com/230-introduction-to-google-maps-api-for-android-with-kotlin#toc-anchor-001
@@ -113,11 +117,12 @@ class MainActivity() :
                 val traceSwitch: Switch = findViewById(R.id.switch_trace)
                 traceSwitch.setOnCheckedChangeListener { _: CompoundButton, state: Boolean -> run {
                     tracingOn = state
+                    closeDrawer();
                 }}
                 val showAreasReadySwitch: Switch = findViewById(R.id.switch_show_ready)
                 showAreasReadySwitch.setOnCheckedChangeListener { _: CompoundButton, state: Boolean -> run {
-                    Log.d ("folderen", "checkedchangelistener")
                     toggleShowAreasReady (state)
+                    closeDrawer();
                 }}
             }
         }
@@ -676,4 +681,16 @@ class MainActivity() :
             polygonsOnMap.clear()
         }
     }
+
+
+    private fun closeDrawer ()
+    {
+        Timer("SettingUp", false).schedule(1000) {
+            this@MainActivity.runOnUiThread(java.lang.Runnable {
+                val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
+                drawerLayout.closeDrawer(GravityCompat.START)
+            })
+        }
+    }
+
 }
