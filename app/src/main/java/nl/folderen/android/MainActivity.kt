@@ -117,12 +117,12 @@ class MainActivity() :
                 val traceSwitch: Switch = findViewById(R.id.switch_trace)
                 traceSwitch.setOnCheckedChangeListener { _: CompoundButton, state: Boolean -> run {
                     tracingOn = state
-                    closeDrawer();
+                    closeDrawerDelayed();
                 }}
                 val showAreasReadySwitch: Switch = findViewById(R.id.switch_show_ready)
                 showAreasReadySwitch.setOnCheckedChangeListener { _: CompoundButton, state: Boolean -> run {
                     toggleShowAreasReady (state)
-                    closeDrawer();
+                    closeDrawerDelayed();
                 }}
             }
         }
@@ -683,9 +683,9 @@ class MainActivity() :
     }
 
 
-    private fun closeDrawer ()
+    private fun closeDrawerDelayed ()
     {
-        Timer().schedule(1000) {
+        Timer().schedule(800) {
             this@MainActivity.runOnUiThread(java.lang.Runnable {
                 val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
                 drawerLayout.closeDrawer(GravityCompat.START)
