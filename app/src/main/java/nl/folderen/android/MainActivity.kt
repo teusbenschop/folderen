@@ -685,7 +685,7 @@ class MainActivity() :
 
     private fun closeDrawer ()
     {
-        Timer("SettingUp", false).schedule(1000) {
+        Timer().schedule(1000) {
             this@MainActivity.runOnUiThread(java.lang.Runnable {
                 val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
                 drawerLayout.closeDrawer(GravityCompat.START)
