@@ -146,7 +146,6 @@ class MainActivity() :
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(p0: LocationResult) {
                 super.onLocationResult(p0)
-
                 lastLocation = p0.lastLocation
                 if (tracingOn) {
                     placeMarkerOnMap(LatLng(lastLocation.latitude, lastLocation.longitude))
@@ -502,7 +501,7 @@ class MainActivity() :
         }
 
         // Request for location updates.
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null /* Looper */)
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
 
     }
 
@@ -574,7 +573,7 @@ class MainActivity() :
 
     public override fun onResume() {
         super.onResume()
-        if (!locationUpdateState) {
+        if (!tracingOn) {
             startLocationUpdates()
         }
     }
