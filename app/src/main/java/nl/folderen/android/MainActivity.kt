@@ -191,8 +191,8 @@ class MainActivity() :
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.main, menu)
+        // Inflate the options menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.options_menu, menu)
         return true
     }
 
