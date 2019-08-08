@@ -5,7 +5,8 @@
     <string name="nav_header_title">Folderen</string>
     <string name="nav_header_subtitle">Hulp voor het folderen</string>
     <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_backup">Backup maken naar Downloads</string>
+    <string name="action_restore">Backup terugzetten vanuit Downloads</string>
 
     <string name="flyering">Bezig met folderen</string>
     <string name="menu_home">Home</string>

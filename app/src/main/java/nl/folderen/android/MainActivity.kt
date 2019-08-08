@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color.*
 import android.location.Location
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.*
 import androidx.core.view.GravityCompat
@@ -191,19 +192,30 @@ class MainActivity() :
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the options menu; this adds items to the action bar if it is present.
+        // Inflate the options menu.
+        // This adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.options_menu, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        return when (item.itemId) {
-            R.id.action_settings -> true
-            else -> super.onOptionsItemSelected(item)
+        // Handle action bar item clicks here.
+        // The action bar will automatically handle clicks on the Home/Up button,
+        // so long as you specify a parent activity in AndroidManifest.xml.
+        if (item.itemId == R.id.action_backup) { // Todo
+            val db = FlyeringDatabaseHelper (applicationContext)
+            val message = db.backup()
+            feedbackToast(message)
+            return true
         }
+        if (item.itemId == R.id.action_restore) { // Todo
+            val db = FlyeringDatabaseHelper (applicationContext)
+            val message = db.restore()
+            feedbackToast(message)
+            return true
+        }
+        // Default action.
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -476,12 +488,7 @@ class MainActivity() :
                     .setTitle("Permissions needed")
                     .setMessage("Please grant all permissions for the app to work as designed")
                     .setPositiveButton("Ok", DialogInterface.OnClickListener { _, _ ->
-                        val toast = Toast.makeText(
-                            applicationContext,
-                            "The app is running with reduced functionality",
-                            Toast.LENGTH_LONG
-                        )
-                        toast.show()
+                        feedbackToast("The app is running with reduced functionality")
                     })
                     .create()
                     .show()
@@ -701,6 +708,16 @@ class MainActivity() :
                 drawerLayout.closeDrawer(GravityCompat.START)
             })
         }
+    }
+
+    private fun feedbackToast (message : String)
+    {
+        val toast = Toast.makeText(
+            applicationContext,
+            message,
+            Toast.LENGTH_LONG
+        )
+        toast.show()
     }
 
 }

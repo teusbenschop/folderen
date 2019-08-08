@@ -4,9 +4,11 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.os.Environment
 import android.provider.BaseColumns
 import android.util.Log
 import com.google.android.gms.maps.model.LatLng
+import java.io.File
 
 
 // The database operations were written based on the following official documentation:
@@ -198,6 +200,35 @@ class FlyeringDatabaseHelper (context: Context) :
 
         // Hand the areas to the caller.
         return areas
+    }
+
+
+    fun backup () : String
+    {
+        // Get the path to the source database.
+        val db = this.readableDatabase
+        val databasePath = db.path
+        db.close()
+
+        // Path to the Downloads folder.
+        val downloadsPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath
+
+        // The name of the destination file in the Downloads folder.
+        val databaseFile = File(databasePath)
+        val destinationFile = File(downloadsPath + File.separator + databaseFile.name)
+
+        // Copy the database file.
+        databaseFile.copyTo(destinationFile, true)
+
+        // Feedback.
+        return String.format("The areas done were copied to the Downloads")
+    }
+
+
+    fun restore () : String // Todo
+    {
+
+        return String.format("")
     }
 
 }
