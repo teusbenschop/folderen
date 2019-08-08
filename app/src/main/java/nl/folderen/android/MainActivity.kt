@@ -202,16 +202,26 @@ class MainActivity() :
         // Handle action bar item clicks here.
         // The action bar will automatically handle clicks on the Home/Up button,
         // so long as you specify a parent activity in AndroidManifest.xml.
-        if (item.itemId == R.id.action_backup) { // Todo
+        if (item.itemId == R.id.action_backup) {
             val db = FlyeringDatabaseHelper (applicationContext)
             val message = db.backup()
             feedbackToast(message)
             return true
         }
-        if (item.itemId == R.id.action_restore) { // Todo
-            val db = FlyeringDatabaseHelper (applicationContext)
-            val message = db.restore()
-            feedbackToast(message)
+        if (item.itemId == R.id.action_restore) {
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Terugzetten backup")
+            builder.setMessage("Het terugzetten van de backup overschrijft de gebieden die al gefolderd zijn. Toch doorgaan?")
+            val dialogClickListener = DialogInterface.OnClickListener{_,which ->
+                when(which){
+                    DialogInterface.BUTTON_POSITIVE -> doRestore()
+                    DialogInterface.BUTTON_NEGATIVE -> feedbackToast("Backup is niet teruggezet.")
+                }
+            }
+            builder.setPositiveButton("Ja",dialogClickListener)
+            builder.setNegativeButton("Nee",dialogClickListener)
+            val dialog = builder.create()
+            dialog.show()
             return true
         }
         // Default action.
@@ -719,5 +729,13 @@ class MainActivity() :
         )
         toast.show()
     }
+
+    private fun doRestore()
+    {
+        val db = FlyeringDatabaseHelper (applicationContext)
+        val message = db.restore()
+        feedbackToast(message)
+    }
+
 
 }

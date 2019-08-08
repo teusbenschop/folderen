@@ -221,14 +221,30 @@ class FlyeringDatabaseHelper (context: Context) :
         databaseFile.copyTo(destinationFile, true)
 
         // Feedback.
-        return String.format("The areas done were copied to the Downloads")
+        return "Een backup van de gebieden die gefolderd zijn staat nu in de Downloads"
     }
 
 
-    fun restore () : String // Todo
+    fun restore () : String
     {
+        // Get the path to the destination database.
+        // Create it if needed.
+        val db = this.writableDatabase
+        val databasePath = db.path
+        db.close()
+        val databaseFile = File(databasePath)
 
-        return String.format("")
+        // Path to the possible backup in the Downloads folder.
+        val downloadsPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).absolutePath
+        val backupFile = File(downloadsPath + File.separator + databaseFile.name)
+
+        if (backupFile.exists()) {
+            backupFile.copyTo(databaseFile, true)
+            return "De backup is teruggezet"
+        } else {
+            return "De backup bestaat niet en kon niet teruggezet worden"
+        }
+
     }
 
 }
