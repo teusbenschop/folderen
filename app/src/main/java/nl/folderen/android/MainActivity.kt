@@ -250,71 +250,75 @@ class MainActivity() :
                 }
             }
             R.id.nav_ready -> {
-                val region = map.projection.visibleRegion;
+                if (::map.isInitialized) {
 
-                // Create markers at the four corners of the visible region.
-                // Position them slightly off the corners towards the center.
-                val farleftPosition = interpolate (region.farLeft, region.nearRight, 0.1)
-                val farrightPosition = interpolate (region.farRight, region.nearLeft, 0.1)
-                val nearrightPosition = interpolate (region.nearRight, region.farLeft, 0.1)
-                val nearleftPosition = interpolate (region.nearLeft, region.farRight, 0.1)
+                    val region = map.projection.visibleRegion;
 
-                // Create another four markers in-between the markers at the corners.
-                // So the total number of markers will be eight all together.
-                val leftcenterPosition = interpolate (farleftPosition, nearleftPosition, 0.5)
-                val rightcenterPosition = interpolate (farrightPosition, nearrightPosition, 0.5)
-                val farcenterPosition = interpolate (farleftPosition, farrightPosition, 0.5)
-                val nearcenterPosition = interpolate (nearleftPosition, nearrightPosition, 0.5)
+                    // Create markers at the four corners of the visible region.
+                    // Position them slightly off the corners towards the center.
+                    val farleftPosition = interpolate (region.farLeft, region.nearRight, 0.1)
+                    val farrightPosition = interpolate (region.farRight, region.nearLeft, 0.1)
+                    val nearrightPosition = interpolate (region.nearRight, region.farLeft, 0.1)
+                    val nearleftPosition = interpolate (region.nearLeft, region.farRight, 0.1)
 
-                var markerOptions : MarkerOptions = MarkerOptions().draggable(true)
+                    // Create another four markers in-between the markers at the corners.
+                    // So the total number of markers will be eight all together.
+                    val leftcenterPosition = interpolate (farleftPosition, nearleftPosition, 0.5)
+                    val rightcenterPosition = interpolate (farrightPosition, nearrightPosition, 0.5)
+                    val farcenterPosition = interpolate (farleftPosition, farrightPosition, 0.5)
+                    val nearcenterPosition = interpolate (nearleftPosition, nearrightPosition, 0.5)
 
-                markerOptions.position(farleftPosition)
-                farleftMarker = map.addMarker(markerOptions)
-                markerOptions.position(farrightPosition)
-                farrightMarker = map.addMarker(markerOptions)
-                markerOptions.position(nearleftPosition)
-                nearleftMarker = map.addMarker(markerOptions)
-                markerOptions.position(nearrightPosition)
-                nearrightMarker = map.addMarker(markerOptions)
+                    var markerOptions : MarkerOptions = MarkerOptions().draggable(true)
 
-                markerOptions.position(leftcenterPosition)
-                leftcenterMarker = map.addMarker(markerOptions)
-                markerOptions.position(rightcenterPosition)
-                rightcenterMarker = map.addMarker(markerOptions)
-                markerOptions.position(farcenterPosition)
-                farcenterMarker = map.addMarker(markerOptions)
-                markerOptions.position(nearcenterPosition)
-                nearcenterMarker = map.addMarker(markerOptions)
+                    markerOptions.position(farleftPosition)
+                    farleftMarker = map.addMarker(markerOptions)
+                    markerOptions.position(farrightPosition)
+                    farrightMarker = map.addMarker(markerOptions)
+                    markerOptions.position(nearleftPosition)
+                    nearleftMarker = map.addMarker(markerOptions)
+                    markerOptions.position(nearrightPosition)
+                    nearrightMarker = map.addMarker(markerOptions)
 
-                val polygonOptions = PolygonOptions()
-                    .add (
-                        nearcenterMarker.position,
-                        nearleftMarker.position,
-                        leftcenterMarker.position,
-                        farleftMarker.position,
-                        farcenterMarker.position,
-                        farrightMarker.position,
-                        rightcenterMarker.position,
-                        nearrightMarker.position
-                    )
-                readyPolygon = map.addPolygon((polygonOptions))
-                readyPolygon.setTag("alpha");
+                    markerOptions.position(leftcenterPosition)
+                    leftcenterMarker = map.addMarker(markerOptions)
+                    markerOptions.position(rightcenterPosition)
+                    rightcenterMarker = map.addMarker(markerOptions)
+                    markerOptions.position(farcenterPosition)
+                    farcenterMarker = map.addMarker(markerOptions)
+                    markerOptions.position(nearcenterPosition)
+                    nearcenterMarker = map.addMarker(markerOptions)
 
-                // Put an okay button and a cancel button on the map at about the center of the screen.
-                val cancelPosition = interpolate (leftcenterPosition, rightcenterPosition, 0.3)
-                val okayPosition = interpolate (rightcenterPosition, leftcenterPosition, 0.3)
-                markerOptions = MarkerOptions()
-                    .position(cancelPosition)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.cross50))
-                    .anchor(0.5f, 0.5f)
-                    .alpha(0.5f)
-                cancelMarker = map.addMarker(markerOptions)
-                markerOptions = MarkerOptions()
-                    .position(okayPosition)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.tick50))
-                    .anchor(0.5f, 0.5f)
-                    .alpha(0.5f)
-                okayMarker = map.addMarker(markerOptions)
+                    val polygonOptions = PolygonOptions()
+                        .add (
+                            nearcenterMarker.position,
+                            nearleftMarker.position,
+                            leftcenterMarker.position,
+                            farleftMarker.position,
+                            farcenterMarker.position,
+                            farrightMarker.position,
+                            rightcenterMarker.position,
+                            nearrightMarker.position
+                        )
+                    readyPolygon = map.addPolygon((polygonOptions))
+                    readyPolygon.setTag("alpha");
+
+                    // Put an okay button and a cancel button on the map at about the center of the screen.
+                    val cancelPosition = interpolate (leftcenterPosition, rightcenterPosition, 0.3)
+                    val okayPosition = interpolate (rightcenterPosition, leftcenterPosition, 0.3)
+                    markerOptions = MarkerOptions()
+                        .position(cancelPosition)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.cross50))
+                        .anchor(0.5f, 0.5f)
+                        .alpha(0.5f)
+                    cancelMarker = map.addMarker(markerOptions)
+                    markerOptions = MarkerOptions()
+                        .position(okayPosition)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.tick50))
+                        .anchor(0.5f, 0.5f)
+                        .alpha(0.5f)
+                    okayMarker = map.addMarker(markerOptions)
+
+                }
             }
         }
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
