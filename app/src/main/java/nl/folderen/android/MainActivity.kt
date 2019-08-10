@@ -268,7 +268,11 @@ class MainActivity() :
                     val farcenterPosition = interpolate (farleftPosition, farrightPosition, 0.5)
                     val nearcenterPosition = interpolate (nearleftPosition, nearrightPosition, 0.5)
 
-                    var markerOptions : MarkerOptions = MarkerOptions().draggable(true)
+                    var markerOptions : MarkerOptions = MarkerOptions()
+                        .draggable(true)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.draggable))
+                        .anchor(0.5f, 0.5f)
+                    // Todo
 
                     markerOptions.position(farleftPosition)
                     farleftMarker = map.addMarker(markerOptions)
@@ -300,7 +304,6 @@ class MainActivity() :
                             nearrightMarker.position
                         )
                     readyPolygon = map.addPolygon((polygonOptions))
-                    readyPolygon.setTag("alpha");
 
                     // Put an okay button and a cancel button on the map at about the center of the screen.
                     val cancelPosition = interpolate (leftcenterPosition, rightcenterPosition, 0.3)
