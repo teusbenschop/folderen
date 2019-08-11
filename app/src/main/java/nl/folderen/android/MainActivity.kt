@@ -10,7 +10,6 @@ import android.content.pm.PackageManager
 import android.graphics.Color.*
 import android.location.Location
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.*
 import androidx.core.view.GravityCompat
@@ -292,6 +291,10 @@ class MainActivity() :
                     markerOptions.position(nearcenterPosition)
                     nearcenterMarker = map.addMarker(markerOptions)
 
+                    val dot = Dot()
+                    val dash = Dash(50f)
+                    val gap = Gap(10f)
+                    val patternMixed = Arrays.asList(dot, gap, dot, dash, gap)
                     val polygonOptions = PolygonOptions()
                         .add (
                             nearcenterMarker.position,
@@ -303,6 +306,7 @@ class MainActivity() :
                             rightcenterMarker.position,
                             nearrightMarker.position
                         )
+                        .strokePattern(patternMixed)
                     readyPolygon = map.addPolygon((polygonOptions))
 
                     // Put an okay button and a cancel button on the map at about the center of the screen.
