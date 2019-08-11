@@ -69,7 +69,6 @@ class MainActivity() :
     private lateinit var lastLocation: Location
     private lateinit var locationCallback: LocationCallback
     private lateinit var locationRequest: LocationRequest
-    private var locationUpdateState = false
 
     private var tracingOn = false
     private lateinit var parkMarker : Marker
@@ -540,7 +539,6 @@ class MainActivity() :
 
         // A task success means all is well and it can go ahead and initiate a location request.
         task.addOnSuccessListener {
-            locationUpdateState = true
             startLocationUpdates()
         }
         task.addOnFailureListener { e ->
@@ -568,7 +566,6 @@ class MainActivity() :
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CHECK_SETTINGS) {
             if (resultCode == Activity.RESULT_OK) {
-                locationUpdateState = true
                 startLocationUpdates()
             }
         }
