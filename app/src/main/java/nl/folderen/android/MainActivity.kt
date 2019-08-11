@@ -250,6 +250,8 @@ class MainActivity() :
             R.id.nav_ready -> {
                 if (::map.isInitialized) {
 
+                    finalizeReadyArea(false)
+
                     val region = map.projection.visibleRegion;
 
                     // Create markers at the four corners of the visible region.
@@ -270,7 +272,6 @@ class MainActivity() :
                         .draggable(true)
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.draggable))
                         .anchor(0.5f, 0.5f)
-                    // Todo
 
                     markerOptions.position(farleftPosition)
                     farleftMarker = map.addMarker(markerOptions)
@@ -611,6 +612,8 @@ class MainActivity() :
 
     private fun finalizeReadyArea (accept : Boolean)
     {
+        if (!::cancelMarker.isInitialized) return;
+
         // Remove the two buttons.
         cancelMarker.remove()
         okayMarker.remove()
