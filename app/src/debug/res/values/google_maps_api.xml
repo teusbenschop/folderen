@@ -31,5 +31,5 @@
     debug:   AIzaSyBTLgW7E0vtsLlvt7bEz5Ymz6mYjvxuwv8
     release: AIzaSyB24b_psL8v5VxkTrDJricwJg_A2L0KffY
     -->
-    <string name="google_maps_key" translatable="false" templateMergeStrategy="preserve">AIzaSyB24b_psL8v5VxkTrDJricwJg_A2L0KffY</string>
+    <string name="google_maps_key" translatable="false" templateMergeStrategy="preserve">AIzaSyBTLgW7E0vtsLlvt7bEz5Ymz6mYjvxuwv8</string>
 </resources>
