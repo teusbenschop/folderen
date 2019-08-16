@@ -30,6 +30,12 @@
     Keys:
     debug:   AIzaSyBTLgW7E0vtsLlvt7bEz5Ymz6mYjvxuwv8
     release: AIzaSyB24b_psL8v5VxkTrDJricwJg_A2L0KffY
+
+    After installing the app fromo the Google Play Store, it gets a new fingerprint:
+    Android Application (<cert_fingerprint>;<package_name>): 63:7B:F3:FD:E2:8A:50:F9:F7:C7:FD:93:F0:32:46:DC:93:79:92:1B;nl.folderen.android
+    https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend&keyType=CLIENT_SIDE_ANDROID&r=63:7B:F3:FD:E2:8A:50:F9:F7:C7:FD:93:F0:32:46:DC:93:79:92:1B%3Bnl.folderen.android
+    Key: AIzaSyD4Zn0XZGszqljabfYmCsm-u9IRV6mnCk4
+
     -->
-    <string name="google_maps_key" translatable="false" templateMergeStrategy="preserve">AIzaSyB24b_psL8v5VxkTrDJricwJg_A2L0KffY</string>
+    <string name="google_maps_key" translatable="false" templateMergeStrategy="preserve">AIzaSyD4Zn0XZGszqljabfYmCsm-u9IRV6mnCk4</string>
 </resources>
