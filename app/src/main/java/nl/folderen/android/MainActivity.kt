@@ -665,7 +665,8 @@ class MainActivity() :
 
     private fun drawReadyBoundary (positions : List<LatLng>)
     {
-        val color = ColorUtils.blendARGB(GREEN, WHITE, 0.5f)
+        // https://stackoverflow.com/questions/14326482/android-maps-v2-polygon-transparency
+        val color = 0x7F00FF00
         var polygonOptions = PolygonOptions()
             .addAll(positions)
             .strokeColor(color)
