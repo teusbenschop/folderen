@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
-import android.graphics.Color.*
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -24,7 +23,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.ColorUtils
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -671,6 +669,7 @@ class MainActivity() :
             .addAll(positions)
             .strokeColor(color)
             .fillColor(color)
+            .strokeWidth(0f) // Invisible lines around the area.
 
         val polygon = map.addPolygon((polygonOptions))
         polygonsOnMap.add(polygon)
