@@ -474,8 +474,10 @@ class MainActivity() :
             val permissionsToCheck = info.requestedPermissions
 
             // Check if the permissions have been granted.
+            // Skip automatically granted permissions.
             var alertUser = false
             for (permission in permissionsToCheck) {
+                if (permission == Manifest.permission.FOREGROUND_SERVICE) continue
                 if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
                     alertUser = true
                 }
