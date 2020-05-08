@@ -10,19 +10,20 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
-import android.view.*
-import androidx.core.view.GravityCompat
-import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.drawerlayout.widget.DrawerLayout
-import com.google.android.material.navigation.NavigationView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.widget.CompoundButton
 import android.widget.Switch
 import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -31,6 +32,7 @@ import com.google.android.gms.maps.GoogleMap.OnMarkerDragListener
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.android.material.navigation.NavigationView
 import com.google.maps.android.SphericalUtil.interpolate
 import java.util.*
 import kotlin.collections.ArrayList
@@ -117,6 +119,11 @@ class MainActivity() :
                 val traceSwitch: Switch = findViewById(R.id.switch_trace)
                 traceSwitch.setOnCheckedChangeListener { _: CompoundButton, state: Boolean -> run {
                     tracingOn = state
+                    if (state) {
+                        ForegroundService.startService(applicationContext, "Bezig met folderen...")
+                    } else {
+                        ForegroundService.stopService(applicationContext)
+                    }
                     closeDrawerDelayed();
                 }}
                 val showAreasReadySwitch: Switch = findViewById(R.id.switch_show_ready)
