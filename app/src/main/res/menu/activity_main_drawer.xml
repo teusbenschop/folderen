@@ -27,6 +27,11 @@
             app:actionLayout="@layout/show_ready_switch_item"
     />
 
+    <item
+            android:id="@+id/nav_erase"
+            android:title="Wis spoor"
+    />
+
 </menu>
 <!--
 The icons listed below caused a crash on Android 6.0.

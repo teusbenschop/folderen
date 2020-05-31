@@ -332,6 +332,11 @@ class MainActivity() :
 
                 }
             }
+
+            R.id.nav_erase -> {
+                Log.d("erase", "tapped") // Todo
+            }
+
         }
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         drawerLayout.closeDrawer(GravityCompat.START)
