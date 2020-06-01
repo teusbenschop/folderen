@@ -89,6 +89,7 @@ class MainActivity() :
     private lateinit var closeDrawerTimerTask: TimerTask
 
     private var polygonsOnMap : MutableList<Polygon> = mutableListOf<Polygon>()
+    private var waypointsOnMap : MutableList<Marker> = mutableListOf<Marker>()
 
 
     companion object {
@@ -163,6 +164,7 @@ class MainActivity() :
         }
 
         createLocationRequest()
+
     }
 
 
@@ -185,6 +187,13 @@ class MainActivity() :
         map.setOnMapLongClickListener(this)
 
         setUpMap()
+
+        // Write the stored waypoints onto the map.
+        val db = WaypointsDatabaseHelper (applicationContext)
+        val points = db.getPoints ()
+        for (point in points) {
+            placeMarkerOnMap(point)
+        }
     }
 
     override fun onBackPressed() {
@@ -337,6 +346,12 @@ class MainActivity() :
 
             R.id.nav_erase -> {
                 Log.d("erase", "tapped") // Todo
+                val db = WaypointsDatabaseHelper (applicationContext)
+                db.erasePoints()
+                for (marker in waypointsOnMap) {
+                    marker.remove()
+                }
+                waypointsOnMap.clear()
             }
 
         }
@@ -387,7 +402,9 @@ class MainActivity() :
             .icon(BitmapDescriptorFactory.fromResource(R.drawable.greendot12))
             .alpha (0.2f)
             .anchor(0.5f, 0.5f)
-        map.addMarker(markerOptions)
+        val waypoint = map.addMarker(markerOptions)
+        // Todo
+        waypointsOnMap.add(waypoint)
     }
 
 

@@ -70,7 +70,7 @@ class WaypointsDatabaseHelper (context: Context) :
     {
         // Get the data repository in write mode.
         // This is an expensive call.
-        // Todo Another option would be to leave the database open for the duration of recording the waypoints.
+        // Another option would be to leave the database open for the duration of recording the waypoints.
         val db = this.writableDatabase
 
         // Create a new map of values, where column names are the keys
@@ -85,7 +85,6 @@ class WaypointsDatabaseHelper (context: Context) :
         // Close the database connection.
         this.close()
     }
-
 
     fun getPoints () : List<LatLng>
     {
@@ -119,5 +118,14 @@ class WaypointsDatabaseHelper (context: Context) :
         // Hand the points to the caller.
         return points
     }
+
+    fun erasePoints ()
+    {
+        val db = this.writableDatabase
+        db.execSQL(WaypointsContract.SQL_DELETE_ENTRIES)
+        db.execSQL(WaypointsContract.SQL_CREATE_ENTRIES)
+        this.close()
+    }
+
 
 }
