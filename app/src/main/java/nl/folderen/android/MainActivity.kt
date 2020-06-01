@@ -345,7 +345,6 @@ class MainActivity() :
             }
 
             R.id.nav_erase -> {
-                Log.d("erase", "tapped") // Todo
                 val db = WaypointsDatabaseHelper (applicationContext)
                 db.erasePoints()
                 for (marker in waypointsOnMap) {
@@ -403,7 +402,6 @@ class MainActivity() :
             .alpha (0.2f)
             .anchor(0.5f, 0.5f)
         val waypoint = map.addMarker(markerOptions)
-        // Todo
         waypointsOnMap.add(waypoint)
     }
 
