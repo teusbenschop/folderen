@@ -156,6 +156,8 @@ class MainActivity() :
                 lastLocation = p0.lastLocation
                 if (tracingOn) {
                     placeMarkerOnMap(LatLng(lastLocation.latitude, lastLocation.longitude))
+                    val db = WaypointsDatabaseHelper (applicationContext)
+                    db.savePoint(LatLng(lastLocation.latitude, lastLocation.longitude))
                 }
             }
         }
