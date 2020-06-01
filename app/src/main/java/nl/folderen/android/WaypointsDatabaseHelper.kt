@@ -50,14 +50,14 @@ class WaypointsDatabaseHelper (context: Context) :
 
     override fun onCreate(db: SQLiteDatabase?) {
         if (db != null) {
-            db.execSQL(WaypointsDatabaseHelper.WaypointsContract.SQL_CREATE_ENTRIES)
+            db.execSQL(WaypointsContract.SQL_CREATE_ENTRIES)
         }
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         // The upgrade policy is to simply to discard the data and start over.
         if (db != null) {
-            db.execSQL(WaypointsDatabaseHelper.WaypointsContract.SQL_DELETE_ENTRIES)
+            db.execSQL(WaypointsContract.SQL_DELETE_ENTRIES)
         }
         onCreate(db)
     }
@@ -66,7 +66,7 @@ class WaypointsDatabaseHelper (context: Context) :
         onUpgrade(db, oldVersion, newVersion)
     }
 
-    fun savePoint (latitude: Double, longitude: Double)
+    fun savePoint (latlng: LatLng)
     {
         // Get the data repository in write mode.
         // This is an expensive call.
@@ -75,8 +75,8 @@ class WaypointsDatabaseHelper (context: Context) :
 
         // Create a new map of values, where column names are the keys
         val values = ContentValues().apply {
-            put(WaypointsContract.WaypointEntry.COLUMN_NAME_LATITUDE, latitude)
-            put(WaypointsContract.WaypointEntry.COLUMN_NAME_lONGITUDE, longitude)
+            put(WaypointsContract.WaypointEntry.COLUMN_NAME_LATITUDE, latlng.latitude)
+            put(WaypointsContract.WaypointEntry.COLUMN_NAME_lONGITUDE, latlng.longitude)
         }
 
         // Insert the new row, returning the primary key value of the new row
@@ -87,10 +87,10 @@ class WaypointsDatabaseHelper (context: Context) :
     }
 
 
-    fun getPoints () : List<List<Double>>
+    fun getPoints () : List<LatLng>
     {
         // Storage for the waypoints that are going to be read from the database.
-        var points : MutableList<List<Double>> = mutableListOf<List<Double>>()
+        var points : MutableList<LatLng> = mutableListOf<LatLng>()
 
         // Get a connection to the database in read mode.
         val db = this.readableDatabase
@@ -109,8 +109,7 @@ class WaypointsDatabaseHelper (context: Context) :
 
             val latitude = cursor.getDouble(cursor.getColumnIndex(WaypointsContract.WaypointEntry.COLUMN_NAME_LATITUDE))
             val longitude = cursor.getDouble(cursor.getColumnIndex(WaypointsContract.WaypointEntry.COLUMN_NAME_lONGITUDE))
-
-            val point = listOf (latitude, longitude)
+            val point = LatLng (latitude, longitude)
             points.add(point)
         }
 
